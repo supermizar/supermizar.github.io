@@ -2,7 +2,7 @@ clone_depth: 5
 
 branches:
   only:
-  - files
+  - hexo
 
 environment:
   access_token:
