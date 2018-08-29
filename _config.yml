@@ -3,11 +3,11 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: Hexo
-subtitle:
+title: Richard Qiu的博客
+subtitle: algorithm engineer
 description:
 keywords:
-author: John Doe
+author: Richard Qiu
 language:
 timezone:
 
@@ -78,4 +78,6 @@ theme: landscape
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
-  type:
+        repo: https://github.com/supermizar/supermizar.github.io.git
+        type: git
+        branch: master
