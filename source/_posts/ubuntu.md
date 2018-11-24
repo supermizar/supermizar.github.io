@@ -1,7 +1,7 @@
 ---
-title: ubuntu 18.04 'Wired Unmanaged'问题解决
+title: ubuntu1804
 date: 2018-09-01
-updated: 2018-09-01
+updated: 2018-09-02
 categories: ubuntu
 tags:
 - ubuntu
