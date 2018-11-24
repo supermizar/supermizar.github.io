@@ -2,6 +2,7 @@
 title: 使用Hexo、Github Pages和Appveyor搭建你的私人博客
 date: 2018-08-19
 modified: 2018-11-20
+categories: blog
 tags:
 - hexo
 - github
