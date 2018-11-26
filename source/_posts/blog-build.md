@@ -2,7 +2,7 @@
 title: 用Hexo、Github Pages和Appveyor搭建你的私人博客
 date: 2018-08-19
 modified: 2018-11-20
-categories: blog
+categories: 博客网站
 tags:
 - hexo
 - github
@@ -15,9 +15,9 @@ tags:
 
 ## 0. 写在前面
 
-	查编程、算法相关资料时，经常看到很多挂载在精美的私人博客上的文章。博主过去的文章都是挂在简书上，虽然满足了撰文的基本需求，但订制属性不佳——作为一名不会按时吃药的coder，这当然是不能容忍的啦^-^
-	
-	闲话少叙，本博客的第一篇文章会详细介绍搭建私人博客的三个组件和基本步骤：
+查编程、算法相关资料时，经常看到很多挂载在精美的私人博客上的文章。博主过去的文章都是挂在简书上，虽然满足了撰文的基本需求，但订制属性不佳——作为一名不会按时吃药的coder，这当然是不能容忍的啦^-^
+​	
+闲话少叙，本博客的第一篇文章会详细介绍搭建私人博客的三个组件和基本步骤：
 
 > Hexo: 博客框架，用于快速高效生成博客所需的前台代码
 >
@@ -137,13 +137,65 @@ hexo deploy
 
 首先，你需要把小节1的工作路径，即hexo_blog上传到新的git repo上，为了便于管理，我没有新建git工程，而是在username.github.io工程上新建了分支：
 
+```bash
+cd hexo_blog
+git init
+git remote add origin git@github.com:user/user.github.io.git
+# 替换user为你的用户名
+git branch hexo # 新增分支
+git checkout hexo
+git add ... # 不必要的目录可以不加，例如node_modules可以在CI环境中生成，建议写个.gitignore
+git commit -m 'xxx'
+git push origin hexo
+```
+
+git repo的根目录下要添加appveyor的hook文件appveyor.yml，为的是在appveyor和此目录建立关联：
+
+```yaml
+clone_depth: 5
+
+branches:
+  only:
+  - hexo
+
+environment:
+  access_token:
+    secure: [your token here]
+
+install:
+  - ps: Install-Product node 6.0
+  - node --version
+  - npm --version
+  - npm config set registry https://registry.npm.taobao.org
+  - npm install
+  - npm install hexo-cli -g
+
+build_script:
+  - hexo generate
+
+artifacts:
+  - path: public
+
+on_success:
+  - git config --global credential.helper store
+  - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
+  - git config --global user.email "%GIT_USER_EMAIL%"
+  - git config --global user.name "%GIT_USER_NAME%"
+  - git clone --depth 5 -q --branch=%TARGET_BRANCH% %STATIC_SITE_REPO% %TEMP%\static-site
+  - cd %TEMP%\static-site
+  - del * /f /q
+  - for /d %%p IN (*) do rmdir "%%p" /s /q
+  - SETLOCAL EnableDelayedExpansion & robocopy "%APPVEYOR_BUILD_FOLDER%\public" "%TEMP%\static-site" /e & IF !ERRORLEVEL! EQU 1 (exit 0) ELSE (IF !ERRORLEVEL! EQU 3 (exit 0) ELSE (exit 1))
+  - git add -A
+  - git commit -m "Update Static Site"
+  - git push origin %TARGET_BRANCH%
+  - appveyor AddMessage "Static Site Updated"
+```
 
 
-根目录下要添加appveyor的hook，为的是在appveyor和此目录建立关联：
 
+配置文件中唯一需要修改的就是[your token here]，这个加密token的作用就是让appveyor作为被信任用户向你的博客master分支提交内容。为了获取此token，你需要在github上生成一个token，但这个token会暴露在你的hexo分支上，你肯定不愿意谁都能用这个token往你的博客提交内容——登陆Appveyor官网，注册账号，用账号内的工具加密此token得到加密token填入appveyor.yml即可。
 
+之后你还需要新建CI工程，定义监听哪里、执行什么操作blablabla……内容太多了，去看[这里](https://www.jianshu.com/p/60de63b14ae5?from=jiantop.com)吧。
 
-你需要登陆Appveyor官网，注册账号
-
-
-
+大功告成！改改博客的配置或是增删改你的博客，push到source repo上，等上几分钟就ok了～

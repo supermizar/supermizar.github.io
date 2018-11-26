@@ -2,7 +2,7 @@
 title: ubuntu 18.04 'Wired Unmanaged' 网络无法配置解决方法
 date: 2018-09-01
 updated: 2018-09-02
-categories: ubuntu
+categories: ubuntu系统
 tags:
 - ubuntu
 - 有线网络配置
